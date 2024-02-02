@@ -12,15 +12,15 @@ function runSearch() {
   //  named 'q' that takes the value from the search bar input field.
 
   // Get search query
-  const query = document.querySelector(".search input").value.trim();
+  const q = document.querySelector(".search input").value.trim();
 
-  if (query === "") {
+  if (q === "") {
     alert("Please enter a search query.");
     return false;
   }
 
   // Build API query URL
-  const apiUrl = `${bing_api_endpoint}?q=${encodeURIComponent(query)}`;
+  const apiUrl = `${bing_api_endpoint}?q=${encodeURIComponent(q)}`;
 
   let request = new XMLHttpRequest();
 
@@ -50,9 +50,16 @@ function runSearch() {
     if (request.status === 200) {
       const responseData = request.response;
       displayResults(responseData);
+      displayRelatedConcepts(request.response.relatedSearches);
     } else {
       console.error("Error:", request.statusText);
     }
+  };
+
+  // Handle network errors
+  request.onerror = function () {
+    console.error("Network error occurred");
+    // Handle error here, e.g., display an error message to the user
   };
 
   // Send request
@@ -72,6 +79,7 @@ function clearResults() {
   // Clear previous search results
   const resultsContainer = document.getElementById("resultsImageContainer");
   resultsContainer.innerHTML = "";
+  closeResultsPane();
 }
 
 function closeResultsPane() {
@@ -81,6 +89,12 @@ function closeResultsPane() {
 
 function displayResults(responseData) {
   // Display image results
+  // Error handling: Check if responseData is empty or does not contain expected properties
+  if (!responseData || !responseData.value || !responseData.relatedSearches) {
+    console.error("Invalid response data:", responseData);
+    return;
+  }
+
   const resultsContainer = document.getElementById("resultsImageContainer");
   const images = responseData.value;
 
@@ -94,40 +108,37 @@ function displayResults(responseData) {
     resultsContainer.appendChild(imgElement);
   });
 
-  // Display related concept results
-  const relatedConceptsContainer = document.getElementById("relatedConcepts");
-  relatedConceptsContainer.innerHTML = "";
-
-  const relatedSearchTerms = responseData.relatedSearches;
-  relatedSearchTerms.forEach(term => {
-    const termElement = document.createElement("span");
-    termElement.textContent = term.text;
-    termElement.classList.add("related-concept");
-    termElement.addEventListener("click", function () {
-      document.querySelector(".search input").value = term.text;
-      runSearch();
-    });
-    relatedConceptsContainer.appendChild(termElement);
-  });
-
   openResultsPane();
 }
 
+function displayRelatedConcepts(relatedSearches) {
+  const suggestionsList = document.querySelector(".suggestions ul");
+  suggestionsList.innerHTML = "";
+  relatedSearches.forEach((relatedSearch) => {
+    const li = document.createElement("li");
+    li.textContent = relatedSearch.text;
+    li.addEventListener("click", () => runSearchWithRelated(relatedSearch.text));
+    suggestionsList.appendChild(li);
+  });
+}
+
+
 function addImageToBoard(imageUrl) {
   // Add selected image to the board
-  const boardContainer = document.getElementById("moodBoard");
+  const boardContainer = document.getElementById("board");
   const imgElement = document.createElement("img");
   imgElement.src = imageUrl;
   boardContainer.appendChild(imgElement);
 }
 
-// This will 
-document.querySelector("#runSearchButton").addEventListener("click", runSearch);
-document.querySelector(".search input").addEventListener("keypress", (e) => {
-  if (e.key == "Enter") {runSearch()}
-});
+document.addEventListener("DOMContentLoaded", function() {
+  document.querySelector("#runSearchButton").addEventListener("click", runSearch);
+  document.querySelector(".search input").addEventListener("keypress", (e) => {
+    if (e.key == "Enter") {runSearch()}
+  });
 
-document.querySelector("#closeResultsButton").addEventListener("click", closeResultsPane);
-document.querySelector("body").addEventListener("keydown", (e) => {
-  if(e.key == "Escape") {closeResultsPane()}
+  document.querySelector("#closeResultsButton").addEventListener("click", closeResultsPane);
+  document.querySelector("body").addEventListener("keydown", (e) => {
+    if(e.key == "Escape") {closeResultsPane()}
+  });
 });
