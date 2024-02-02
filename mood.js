@@ -2,8 +2,6 @@ const bing_api_endpoint = "https://api.bing.microsoft.com/v7.0/images/search";
 const bing_api_key = BING_API_KEY
 
 function runSearch() {
-
-  // TODO: Clear the results pane before you run a new search
   clearResults();
 
   openResultsPane();
@@ -22,8 +20,6 @@ function runSearch() {
   // Build API query URL
   const apiUrl = `${bing_api_endpoint}?q=${encodeURIComponent(q)}`;
 
-  let request = new XMLHttpRequest();
-
   // TODO: Construct the request object and add appropriate event listeners to
   // handle responses. See:
   // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_XMLHttpRequest
@@ -39,7 +35,8 @@ function runSearch() {
   // request.setRequestHeader("Ocp-Apim-Subscription-Key", bing_api_key);
 
   // TODO: Send the request
-
+  let request = new XMLHttpRequest();
+  
   // Configure request
   request.open("GET", apiUrl);
   request.setRequestHeader("Ocp-Apim-Subscription-Key", bing_api_key);
