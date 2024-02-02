@@ -122,6 +122,11 @@ function displayRelatedConcepts(relatedSearches) {
   });
 }
 
+function runSearchWithRelated(query) {
+  document.querySelector(".search input").value = query;
+  runSearch();
+}
+
 
 function addImageToBoard(imageUrl) {
   // Add selected image to the board
