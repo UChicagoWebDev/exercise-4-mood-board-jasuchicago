@@ -9,7 +9,7 @@ function runSearch() {
   // TODO: Build your query by combining the bing_api_endpoint and a query attribute
   //  named 'q' that takes the value from the search bar input field.
 
-  // Get search query
+  // Search query
   const q = document.querySelector(".search input").value.trim();
 
   if (q === "") {
@@ -36,7 +36,7 @@ function runSearch() {
 
   // TODO: Send the request
   let request = new XMLHttpRequest();
-  
+
   // Configure request
   request.open("GET", apiUrl);
   request.setRequestHeader("Ocp-Apim-Subscription-Key", bing_api_key);
@@ -93,6 +93,7 @@ function displayResults(responseData) {
   }
 
   const resultsContainer = document.getElementById("resultsImageContainer");
+  responseData.innerHTML = "";
   const images = responseData.value;
 
   images.forEach(image => {
@@ -123,7 +124,6 @@ function runSearchWithRelated(query) {
   document.querySelector(".search input").value = query;
   runSearch();
 }
-
 
 function addImageToBoard(imageUrl) {
   // Add selected image to the board
